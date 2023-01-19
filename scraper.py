@@ -27,8 +27,8 @@ class Scraper():
         self.driver = webdriver.Chrome(executable_path = '/Users/bhorowitz/Documents/chromedriver/chromedriver')
 
         #Login information - replace these later with username/password from tkinter
-        self.username = '' 
-        self.password = ''
+        self.username = 'hhorowitz734@gmail.com' 
+        self.password = 'ThisBotScrapes151!'
         self.login_url = 'https://www.facebook.com'
 
         #Geolocator - Used to extract the zip code of a given location
@@ -152,7 +152,29 @@ class Scraper():
         search_bar.send_keys(Keys.DELETE) 
         search_bar.send_keys(search)
         search_bar.send_keys(Keys.ENTER)
+    
+    def get_car_links(self, num_cars = 100):
+        '''Gets num_cars amount of links for cars on the main page'''
 
+        #Important element names
+        car_link_element = 'x1i10hfl.xjbqb8w.x6umtig.x1b1mbwd.xaqea5y.xav7gou.x9f619.x1ypdohk.xt0psk2.xe8uvvx.xdj266r.x11i5rnm.xat24cr.x1mh8g0r.xexx8yu.x4uap5.x18d9i69.xkhd6sd.x16tdsg8.x1hl2dhg.xggy1nq.x1a2a7pz.x1heor9g.x1lku1pv'
+        car_scroll_element = 'x1lliihq.x6ikm8r.x10wlt62.x1n2onr6'
+
+        #Records variables for scrolling script
+        cars_collected = 0
+
+        #Scrolls to the bottom of the page until the number of cars collected is greater than cars requested
+        while cars_collected < num_cars:
+            self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight + 15);")
+            #Waits for page to load
+            time.sleep(3)
+            cars_collected = (len(self.driver.find_elements(By.CLASS_NAME, car_scroll_element)) - 14) // 3
+
+        #Creates a list of the href elements of every car on page (Links for the cars)
+        links = [link.get_attribute('href') for link in self.driver.find_elements(By.CLASS_NAME, car_link_element)]
+
+        #Returns list of links
+        return links
 
         
 
@@ -160,5 +182,6 @@ x = Scraper()
 x.login()
 x.input_location()
 x.input_search()
+x.get_car_links()
 time.sleep(3)
 x.quit()
