@@ -175,6 +175,45 @@ class Scraper():
 
         #Returns list of links
         return links
+    
+    def get_car_info(self, links):
+        '''Gets car information from the provided list of facebook marketplace links'''
+
+        #Important element names
+        see_more_element = 'x1i10hfl.xjbqb8w.x6umtig.x1b1mbwd.xaqea5y.xav7gou.x9f619.x1ypdohk.xt0psk2.xe8uvvx.xdj266r.x11i5rnm.xat24cr.x1mh8g0r.xexx8yu.x4uap5.x18d9i69.xkhd6sd.x16tdsg8.x1hl2dhg.xggy1nq.x1o1ewxj.x3x9cwd.x1e5q0jg.x13rtm0m.x1n2onr6.x87ps6o.x1lku1pv.x1a2a7pz'
+        title_element = 'x193iq5w.xeuugli.x13faqbe.x1vvkbs.xlh3980.xvmahel.x1n0sxbx.x1lliihq.x1s928wv.xhkezso.x1gmr53x.x1cpjm7i.x1fgarty.x1943h6x.xtoi2st.x41vudc.xngnso2.x1qb5hxa.x1xlr1w8.xzsf02u'
+        price_element = 'x193iq5w.xeuugli.x13faqbe.x1vvkbs.xlh3980.xvmahel.x1n0sxbx.x1lliihq.x1s928wv.xhkezso.x1gmr53x.x1cpjm7i.x1fgarty.x1943h6x.x4zkp8e.x3x7a5m.x1lkfr7t.x1lbecb7.x1s688f.xzsf02u'
+
+        #Iterates over the list of links
+        for link in links:
+
+            #Creates a Listing object to store the car information
+            listing = Listing()
+            
+            #Loads the link
+            self.driver.get(link)
+
+            #Clicks the see more button to expand car information if it exists
+            actions = ActionChains(self.driver)
+            see_more_buttons = self.driver.find_elements(By.CLASS_NAME, see_more_element)
+            for button in see_more_buttons:
+                if 'see more' in button.get_attribute('innerHTML').lower():
+                    actions.move_to_element(button).click(button).perform()
+            
+            #Gets the title
+            title = self.driver.find_elements(By.CLASS_NAME, title_element)[-1]
+            listing.title = title.get_attribute('innerText')
+            
+            #Gets the price of the car
+            price = self.driver.find_elements(By.CLASS_NAME, price_element)[-2]
+            listing.price = price.get_attribute('innerText')
+            print(listing.price)
+
+class Listing():
+
+    def __init__(self):
+        self.title = None
+        self.price = None
 
         
 
@@ -182,6 +221,7 @@ x = Scraper()
 x.login()
 x.input_location()
 x.input_search()
-x.get_car_links()
+links = x.get_car_links(30)
+x.get_car_info(links)
 time.sleep(3)
 x.quit()
