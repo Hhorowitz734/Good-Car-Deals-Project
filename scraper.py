@@ -245,6 +245,14 @@ class Scraper():
                 elif 'Driven ' in info and 'miles' in info:
                     listing.miles = info
             
+            #Gets the car's first picture
+            try:
+                listing.image = self.driver.find_elements(By.TAG_NAME, 'img')[0].get_attribute('src')
+            except:
+                print('Picture could not be retrieved')
+            
+            
+
             #Adds the url to the listing information
             listing.url = link
 
@@ -256,6 +264,7 @@ class Scraper():
             print('Colors', listing.colors)
             print('Fueltype: ', listing.fueltype)
             print('MPG: ', listing.mpg)
+            print('Image link: ', listing.image)
             print('Link: ', listing.url)
             print('--------------------------')
 
@@ -271,6 +280,7 @@ class Listing():
         self.colors = None
         self.fueltype = None
         self.mpg = []
+        self.image = None
         self.url = None
 
         
