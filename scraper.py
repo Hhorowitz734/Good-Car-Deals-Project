@@ -174,6 +174,7 @@ class Scraper():
         links = [link.get_attribute('href') for link in self.driver.find_elements(By.CLASS_NAME, car_link_element)]
 
         #Returns list of links
+        print(links)
         return links
     
     def get_car_info(self, links):
@@ -183,6 +184,9 @@ class Scraper():
         see_more_element = 'x1i10hfl.xjbqb8w.x6umtig.x1b1mbwd.xaqea5y.xav7gou.x9f619.x1ypdohk.xt0psk2.xe8uvvx.xdj266r.x11i5rnm.xat24cr.x1mh8g0r.xexx8yu.x4uap5.x18d9i69.xkhd6sd.x16tdsg8.x1hl2dhg.xggy1nq.x1o1ewxj.x3x9cwd.x1e5q0jg.x13rtm0m.x1n2onr6.x87ps6o.x1lku1pv.x1a2a7pz'
         title_element = 'x193iq5w.xeuugli.x13faqbe.x1vvkbs.xlh3980.xvmahel.x1n0sxbx.x1lliihq.x1s928wv.xhkezso.x1gmr53x.x1cpjm7i.x1fgarty.x1943h6x.xtoi2st.x41vudc.xngnso2.x1qb5hxa.x1xlr1w8.xzsf02u'
         price_element = 'x193iq5w.xeuugli.x13faqbe.x1vvkbs.xlh3980.xvmahel.x1n0sxbx.x1lliihq.x1s928wv.xhkezso.x1gmr53x.x1cpjm7i.x1fgarty.x1943h6x.x4zkp8e.x3x7a5m.x1lkfr7t.x1lbecb7.x1s688f.xzsf02u'
+        miles_element = 'x193iq5w.xeuugli.x13faqbe.x1vvkbs.xlh3980.xvmahel.x1n0sxbx.x1lliihq.x1s928wv.xhkezso.x1gmr53x.x1cpjm7i.x1fgarty.x1943h6x.x4zkp8e.x3x7a5m.x6prxxf.xvq8zen.xo1l8bm.xzsf02u'
+        location_element = 'x1i10hfl.xjbqb8w.x6umtig.x1b1mbwd.xaqea5y.xav7gou.x9f619.x1ypdohk.xt0psk2.xe8uvvx.xdj266r.x11i5rnm.xat24cr.x1mh8g0r.xexx8yu.x4uap5.x18d9i69.xkhd6sd.x16tdsg8.x1hl2dhg.xggy1nq.x1a2a7pz.xt0b8zv.xzsf02u.x1s688f'
+        misc_element = 'x193iq5w.xeuugli.x13faqbe.x1vvkbs.xlh3980.xvmahel.x1n0sxbx.x1lliihq.x1s928wv.xhkezso.x1gmr53x.x1cpjm7i.x1fgarty.x1943h6x.x4zkp8e.x3x7a5m.x6prxxf.xvq8zen.xo1l8bm.xzsf02u'
 
         #Iterates over the list of links
         for link in links:
@@ -200,20 +204,74 @@ class Scraper():
                 if 'see more' in button.get_attribute('innerHTML').lower():
                     actions.move_to_element(button).click(button).perform()
             
-            #Gets the title
-            title = self.driver.find_elements(By.CLASS_NAME, title_element)[-1]
-            listing.title = title.get_attribute('innerText')
+            #Gets the title --> FIX THIS
+            try:
+                title = self.driver.find_elements(By.CLASS_NAME, title_element)[1]
+                listing.title = title.get_attribute('innerText')
+            except:
+                print('Could not retrieve title')
             
-            #Gets the price of the car
-            price = self.driver.find_elements(By.CLASS_NAME, price_element)[-2]
-            listing.price = price.get_attribute('innerText')
-            print(listing.price)
+            #Gets the price of the car --> FIX THIS
+            try:
+                price = self.driver.find_elements(By.CLASS_NAME, price_element)[2]
+                listing.price = price.get_attribute('innerText')
+            except:
+                print('Could not retrieve price')
+            
+            
+            #Gets the location of the car
+            try:
+                location = self.driver.find_element(By.CLASS_NAME, location_element)
+                listing.location = location.get_attribute('innerText')
+            except:
+                print('Could not retrieve location')
+            
+            #Gets the car's miscellanious information
+            misc_webelements = self.driver.find_elements(By.CLASS_NAME, misc_element)
+            for element in reversed(misc_webelements):
+                try:
+                    info = element.get_attribute('innerText')
+                except:
+                    print('Information could not be retrieved.')
+                    info = ''
+                if 'transmission' in info and len(info.split(' ')) == 2:
+                    listing.transmission = info.split(' ')[0]
+                elif 'Exterior color: ' in info or 'Interior color: ' in info:
+                    listing.colors = info
+                elif 'Fuel type: ' in info:
+                    listing.fueltype = info.split(': ')[1]
+                elif 'MPG' in info:
+                    listing.mpg = info
+                elif 'Driven ' in info and 'miles' in info:
+                    listing.miles = info
+            
+            #Adds the url to the listing information
+            listing.url = link
+
+            print('Title: ', listing.title)
+            print('Price: ', listing.price)
+            print('Miles: ', listing.miles)
+            print('Location: ', listing.location)
+            print('Transmission: ', listing.transmission)
+            print('Colors', listing.colors)
+            print('Fueltype: ', listing.fueltype)
+            print('MPG: ', listing.mpg)
+            print('Link: ', listing.url)
+            print('--------------------------')
+
 
 class Listing():
 
     def __init__(self):
         self.title = None
         self.price = None
+        self.miles = None
+        self.location = None
+        self.transmission = None
+        self.colors = None
+        self.fueltype = None
+        self.mpg = []
+        self.url = None
 
         
 
