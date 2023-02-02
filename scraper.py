@@ -187,6 +187,10 @@ class Scraper():
         miles_element = 'x193iq5w.xeuugli.x13faqbe.x1vvkbs.xlh3980.xvmahel.x1n0sxbx.x1lliihq.x1s928wv.xhkezso.x1gmr53x.x1cpjm7i.x1fgarty.x1943h6x.x4zkp8e.x3x7a5m.x6prxxf.xvq8zen.xo1l8bm.xzsf02u'
         location_element = 'x1i10hfl.xjbqb8w.x6umtig.x1b1mbwd.xaqea5y.xav7gou.x9f619.x1ypdohk.xt0psk2.xe8uvvx.xdj266r.x11i5rnm.xat24cr.x1mh8g0r.xexx8yu.x4uap5.x18d9i69.xkhd6sd.x16tdsg8.x1hl2dhg.xggy1nq.x1a2a7pz.xt0b8zv.xzsf02u.x1s688f'
         misc_element = 'x193iq5w.xeuugli.x13faqbe.x1vvkbs.xlh3980.xvmahel.x1n0sxbx.x1lliihq.x1s928wv.xhkezso.x1gmr53x.x1cpjm7i.x1fgarty.x1943h6x.x4zkp8e.x3x7a5m.x6prxxf.xvq8zen.xo1l8bm.xzsf02u'
+        description_element = 'xz9dl7a.x4uap5.xsag5q8.xkhd6sd.x126k92a'
+
+        #Creates a list to save listings
+        listings = []
 
         #Iterates over the list of links
         for link in links:
@@ -228,6 +232,7 @@ class Scraper():
             
             #Gets the car's miscellanious information
             misc_webelements = self.driver.find_elements(By.CLASS_NAME, misc_element)
+
             for element in reversed(misc_webelements):
                 try:
                     info = element.get_attribute('innerText')
@@ -245,12 +250,19 @@ class Scraper():
                 elif 'Driven ' in info and 'miles' in info:
                     listing.miles = info
             
+            #Gets the car's description
+            try:
+                description = self.driver.find_element(By.CLASS_NAME, description_element)
+                listing.description = description.get_attribute('innerText')
+            except:
+                print('Could not get description')
+            
+
             #Gets the car's first picture
             try:
                 listing.image = self.driver.find_elements(By.TAG_NAME, 'img')[0].get_attribute('src')
             except:
                 print('Picture could not be retrieved')
-            
             
 
             #Adds the url to the listing information
@@ -264,9 +276,14 @@ class Scraper():
             print('Colors', listing.colors)
             print('Fueltype: ', listing.fueltype)
             print('MPG: ', listing.mpg)
+            print('Description: ', listing.description)
             print('Image link: ', listing.image)
             print('Link: ', listing.url)
             print('--------------------------')
+
+            listings.append(listing)
+        
+        return listings
 
 
 class Listing():
@@ -281,6 +298,7 @@ class Listing():
         self.fueltype = None
         self.mpg = []
         self.image = None
+        self.description = None
         self.url = None
 
         
@@ -290,6 +308,28 @@ x.login()
 x.input_location()
 x.input_search()
 links = x.get_car_links(30)
-x.get_car_info(links)
+listings = x.get_car_info(links)
 time.sleep(3)
 x.quit()
+
+
+#Converts list of items into dataframe
+def listings_to_csv(listings):
+
+    #Converts items into columns for dataframe
+    titles = [listing.title for listing in listings]
+    prices = [listing.price for listing in listings]
+    miles = [listing.miles for listing in listings]
+    location = [listing.location for listing in listings]
+    transmission = [listing.transmission for listing in listings]
+    colors = [listing.colors for listing in listings]
+    fueltype = [listing.fueltype for listing in listings]
+    mpgs = [listing.mpg for listing in listings]
+    descriptions = [listing.description for listing in listings]
+    images = [listing.image for listing in listings]
+    urls = [listing.url for listing in listings]
+    
+    print(titles)
+
+
+listings_to_csv(listings)
