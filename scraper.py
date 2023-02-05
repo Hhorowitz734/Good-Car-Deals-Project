@@ -8,7 +8,6 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.action_chains import ActionChains
 
-
 #Pandas
 import pandas as pd
 
@@ -22,9 +21,12 @@ import time
 
 class Scraper():
 
-    def __init__(self):
+    def __init__(self, place = 'New Orleans', amount = 30):
         #Chrome driver setup
-        self.driver = webdriver.Chrome(executable_path = '/Users/bhorowitz/Documents/chromedriver/chromedriver')
+        options = webdriver.ChromeOptions()
+        options.add_argument('--headless')
+        options.add_argument('window-size=1920x1080')
+        self.driver = webdriver.Chrome(executable_path = '/Users/bhorowitz/Documents/chromedriver/chromedriver', options = options)
 
         #Login information - replace these later with username/password from tkinter
         self.username = 'hhorowitz734@gmail.com' 
@@ -33,6 +35,12 @@ class Scraper():
 
         #Geolocator - Used to extract the zip code of a given location
         self.geolocator = Nominatim(user_agent='carsScraper')
+
+        #Location for car listings
+        self.location = place
+        
+        #Amount of car listings to scrape
+        self.num_cars = amount
 
     def login(self):
         '''Logs the web scraping bot into facebook marketplace'''
@@ -52,18 +60,19 @@ class Scraper():
         time.sleep(.5)
         password_field.send_keys(Keys.ENTER)
 
+
     def quit(self):
         '''Closes the page and exits driver'''
 
         self.driver.close()
         self.driver.quit()
     
-    def get_zip(self, place = 'New Orleans'):
+    def get_zip(self):
         '''Takes in a string containing a place, returns the zip code'''
         
         #Uses geopy to find location information
         #Location is converted to longitude and latitude in order to get an exact position
-        location = self.geolocator.geocode(place)
+        location = self.geolocator.geocode(self.location)
         location = self.geolocator.reverse(f'{location.latitude}, {location.longitude}')
         
         #Converts location to string format for split
@@ -153,7 +162,7 @@ class Scraper():
         search_bar.send_keys(search)
         search_bar.send_keys(Keys.ENTER)
     
-    def get_car_links(self, num_cars = 100):
+    def get_car_links(self):
         '''Gets num_cars amount of links for cars on the main page'''
 
         #Important element names
@@ -164,7 +173,7 @@ class Scraper():
         cars_collected = 0
 
         #Scrolls to the bottom of the page until the number of cars collected is greater than cars requested
-        while cars_collected < num_cars:
+        while cars_collected < self.num_cars:
             self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight + 15);")
             #Waits for page to load
             time.sleep(3)
@@ -284,6 +293,55 @@ class Scraper():
             listings.append(listing)
         
         return listings
+    
+    #Converts list of items into dataframe
+    def listings_to_csv(self, listings):
+        '''Converts list of listings into a CSV file'''
+
+        #Converts items into columns for dataframe
+        titles = [listing.title for listing in listings]
+        prices = [listing.price for listing in listings]
+        miles = [listing.miles for listing in listings]
+        locations = [listing.location for listing in listings]
+        transmissions = [listing.transmission for listing in listings]
+        colors = [listing.colors for listing in listings]
+        fueltype = [listing.fueltype for listing in listings]
+        mpgs = [listing.mpg for listing in listings]
+        descriptions = [listing.description for listing in listings]
+        images = [listing.image for listing in listings]
+        urls = [listing.url for listing in listings]
+        
+        #Creates a dictionary representing the dataframe
+        cars_data = {'title': titles, 'price': prices, 'mile': miles, 'location': locations, 'transmission': transmissions,
+            'color': colors, 'fueltype': fueltype, 'mpg': mpgs, 'description': descriptions, 'image': images, 'url': urls}
+
+        #Creates the cars data frame and turns it into a csv file
+        cars_df = pd.DataFrame(cars_data)
+
+        try:
+            # Try to read the existing CSV file
+            existing_df = pd.read_csv(f'{self.location}.csv')
+
+            # Append the new data to the existing data
+            cars_df = existing_df.append(cars_df, ignore_index=True)
+            cars_df.to_csv(f'data/{self.location}.csv', index=False, mode='a')
+
+        except FileNotFoundError:
+
+            # If the file does not exist, create a new one
+            cars_df.to_csv(f'data/{self.location}.csv', index=True, mode='w')
+        
+        #Adds the information to the general database
+        cars_df.to_csv('data/cars_data.csv', index = False, mode = 'a')
+    
+    def run_all(self):
+        self.login()
+        self.input_location()
+        self.input_search()
+        links = self.get_car_links()
+        listings = self.get_car_info(links)
+        self.listings_to_csv(listings)
+        self.quit()
 
 
 class Listing():
@@ -301,35 +359,5 @@ class Listing():
         self.description = None
         self.url = None
 
-        
-
 x = Scraper()
-x.login()
-x.input_location()
-x.input_search()
-links = x.get_car_links(30)
-listings = x.get_car_info(links)
-time.sleep(3)
-x.quit()
-
-
-#Converts list of items into dataframe
-def listings_to_csv(listings):
-
-    #Converts items into columns for dataframe
-    titles = [listing.title for listing in listings]
-    prices = [listing.price for listing in listings]
-    miles = [listing.miles for listing in listings]
-    location = [listing.location for listing in listings]
-    transmission = [listing.transmission for listing in listings]
-    colors = [listing.colors for listing in listings]
-    fueltype = [listing.fueltype for listing in listings]
-    mpgs = [listing.mpg for listing in listings]
-    descriptions = [listing.description for listing in listings]
-    images = [listing.image for listing in listings]
-    urls = [listing.url for listing in listings]
-    
-    print(titles)
-
-
-listings_to_csv(listings)
+x.run_all()
