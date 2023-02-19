@@ -24,7 +24,7 @@ class Scraper():
     def __init__(self, place = 'New Orleans', amount = 30):
         #Chrome driver setup
         options = webdriver.ChromeOptions()
-        #options.add_argument('--headless')
+        options.add_argument('--headless')
         options.add_argument('window-size=1920x1080')
         self.driver = webdriver.Chrome(executable_path = PATH, options = options)
 
