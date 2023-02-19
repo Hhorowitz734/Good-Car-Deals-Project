@@ -24,7 +24,7 @@ class Scraper():
     def __init__(self, place = 'New Orleans', amount = 30):
         #Chrome driver setup
         options = webdriver.ChromeOptions()
-        options.add_argument('--headless')
+        #options.add_argument('--headless')
         options.add_argument('window-size=1920x1080')
         self.driver = webdriver.Chrome(executable_path = '/Users/bhorowitz/Documents/chromedriver/chromedriver', options = options)
 
@@ -133,6 +133,7 @@ class Scraper():
         
         #Waits for the driver to load the first result
         wait.until(EC.presence_of_element_located((By.CLASS_NAME, first_choice_class)))
+        time.sleep(1.5)
 
         #Selects the first result from the result list
         first_result = self.driver.find_element(By.CLASS_NAME, first_choice_class)
@@ -183,7 +184,6 @@ class Scraper():
         links = [link.get_attribute('href') for link in self.driver.find_elements(By.CLASS_NAME, car_link_element)]
 
         #Returns list of links
-        print(links)
         return links
     
     def get_car_info(self, links):
@@ -335,6 +335,8 @@ class Scraper():
         cars_df.to_csv('data/cars_data.csv', index = False, mode = 'a')
     
     def run_all(self):
+        '''Runs all functions in proper consecutive order for a full scrape'''
+
         self.login()
         self.input_location()
         self.input_search()
@@ -358,6 +360,3 @@ class Listing():
         self.image = None
         self.description = None
         self.url = None
-
-x = Scraper()
-x.run_all()
