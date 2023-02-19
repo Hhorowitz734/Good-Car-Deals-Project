@@ -17,7 +17,7 @@ from geopy.geocoders import Nominatim
 #Python Built-In Modules
 import time
 
-PATH = './drivers/chromedriver'
+PATH = '' #Used for specifying path to chrome driver when necessary
 
 class Scraper():
 
@@ -26,7 +26,7 @@ class Scraper():
         options = webdriver.ChromeOptions()
         options.add_argument('--headless')
         options.add_argument('window-size=1920x1080')
-        self.driver = webdriver.Chrome(executable_path = PATH, options = options)
+        self.driver = webdriver.Chrome(options = options)
 
         #Login information - replace these later with username/password from tkinter
         self.username = 'hhorowitz734@gmail.com' 
