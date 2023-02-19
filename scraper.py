@@ -17,7 +17,7 @@ from geopy.geocoders import Nominatim
 #Python Built-In Modules
 import time
 
-PATH = '/root/drivers/chromedriver'
+PATH = './drivers/chromedriver'
 
 class Scraper():
 
