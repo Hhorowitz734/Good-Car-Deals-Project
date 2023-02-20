@@ -43,7 +43,7 @@ class Scraper():
         #Chrome driver setup
         options = webdriver.ChromeOptions()
         options.add_argument('--no-sandbox')
-        #options.add_argument('--headless')
+        options.add_argument('--headless')
         options.add_argument('window-size=1920x1080')
         self.driver = webdriver.Chrome(PATH, options = options)
 
@@ -126,7 +126,7 @@ class Scraper():
 
         #Waits for the driver to load the location input
         wait = WebDriverWait(self.driver, 10)
-        wait.until(EC.presence_of_element_located((By.CLASS_NAME, location_input_class)))
+        #wait.until(EC.presence_of_element_located((By.CLASS_NAME, location_input_class))) 
 
         #Clicks the input box for inputting a zip code
         location_input = self.driver.find_element(By.CLASS_NAME, location_input_class)
