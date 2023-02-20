@@ -34,6 +34,7 @@ class ScrapeManager():
             for future in futures:
                 if future.exception() is not None:
                     print(f"Error in {future.result().location}: {future.exception()}")
+                    future.result().exit()
     
     def run_scraper(self, scraper):
         '''Runs the scraper for a city'''
