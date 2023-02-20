@@ -22,11 +22,6 @@ PATH = '' #Used for specifying path to chrome driver when necessary
 class Scraper():
 
     def __init__(self, place = 'New Orleans', amount = 30):
-        #Chrome driver setup
-        options = webdriver.ChromeOptions()
-        options.add_argument('--headless')
-        options.add_argument('window-size=1920x1080')
-        self.driver = webdriver.Chrome(options = options)
 
         #Login information - replace these later with username/password from tkinter
         self.username = 'hhorowitz734@gmail.com' 
@@ -41,6 +36,16 @@ class Scraper():
         
         #Amount of car listings to scrape
         self.num_cars = amount
+    
+    def setup_driver(self):
+        '''Sets up the chrome webdriver'''
+
+        #Chrome driver setup
+        options = webdriver.ChromeOptions()
+        options.add_argument('--no-sandbox')
+        options.add_argument('--headless')
+        options.add_argument('window-size=1920x1080')
+        self.driver = webdriver.Chrome(options = options)
 
     def login(self):
         '''Logs the web scraping bot into facebook marketplace'''
@@ -337,6 +342,7 @@ class Scraper():
     def run_all(self):
         '''Runs all functions in proper consecutive order for a full scrape'''
 
+        self.setup_driver()
         self.login()
         self.input_location()
         self.input_search()
