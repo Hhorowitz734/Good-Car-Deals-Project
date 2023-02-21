@@ -27,7 +27,7 @@ class ScrapeManager():
 
         self.scrapers = [Scraper(city, self.amount) for city in self.cities]
         
-        with ThreadPoolExecutor(max_workers=2) as executor:
+        with ThreadPoolExecutor(max_workers=3) as executor:
             futures = [executor.submit(self.run_scraper, scraper) for scraper in self.scrapers]
     
             # Wait for all threads to complete

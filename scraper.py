@@ -18,6 +18,7 @@ from geopy.geocoders import Nominatim
 import time
 
 PATH = '/Users/bhorowitz/Documents/chromedriver/chromedriver' #Used for specifying path to chrome driver when necessary
+USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.182 Safari/537.36' #Path for specifying the 'user agent' string for the browser
 
 class Scraper():
 
@@ -42,10 +43,13 @@ class Scraper():
 
         #Chrome driver setup
         options = webdriver.ChromeOptions()
+        options.add_argument('--start-maximized')
+        options.add_argument(f'user-agent={USER_AGENT}')
         options.add_argument('--no-sandbox')
         options.add_argument('--headless')
         options.add_argument('window-size=1920x1080')
         self.driver = webdriver.Chrome(PATH, options = options)
+        self.driver.maximize_window()
 
     def login(self):
         '''Logs the web scraping bot into facebook marketplace'''
@@ -108,7 +112,7 @@ class Scraper():
             pass
 
         #Waits for the driver to load the location button
-        wait = WebDriverWait(self.driver, 10)
+        wait = WebDriverWait(self.driver, 120)
         wait.until(EC.presence_of_element_located((By.CLASS_NAME, location_btn_class)))  
 
         #Clicks the element used to select locations
@@ -125,14 +129,15 @@ class Scraper():
         #The assumption now is that the scraper has opened the window for selecting a location.
 
         #Waits for the driver to load the location input
-        wait = WebDriverWait(self.driver, 10)
-        #wait.until(EC.presence_of_element_located((By.CLASS_NAME, location_input_class))) 
+        wait = WebDriverWait(self.driver, 30)
+        wait.until(EC.presence_of_element_located((By.CLASS_NAME, location_input_class))) 
 
         #Clicks the input box for inputting a zip code
         location_input = self.driver.find_element(By.CLASS_NAME, location_input_class)
         actions.move_to_element(location_input).click(location_input).perform()
 
         #Deletes the information in the box and replaces it with new zip code given by user
+        location_input.send_keys(Keys.CONTROL, 'a')
         location_input.send_keys(Keys.DELETE) 
         location_input.send_keys(self.get_zip()) #Put place informaion into these parentheses (must be taken as a parameter to input_location)
         
@@ -367,5 +372,5 @@ class Listing():
         self.description = None
         self.url = None
 
-x = Scraper('Chicago', 60)
+x = Scraper('South Bend, Indiana', 20)
 x.run_all()
