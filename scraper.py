@@ -17,7 +17,7 @@ from geopy.geocoders import Nominatim
 #Python Built-In Modules
 import time
 
-PATH = '/Users/bhorowitz/Documents/chromedriver/chromedriver' #Used for specifying path to chrome driver when necessary
+PATH = '/Users/bhorowitz/Desktop/CHROMEDRIVER/chromedriver_mac64 (2)/chromedriver' #Used for specifying path to chrome driver when necessary
 USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.182 Safari/537.36' #Path for specifying the 'user agent' string for the browser
 
 class Scraper():
@@ -232,14 +232,16 @@ class Scraper():
                 title = self.driver.find_elements(By.CLASS_NAME, title_element)[1]
                 listing.title = title.get_attribute('innerText')
             except:
-                print('Could not retrieve title')
+                #print('Could not retrieve title')
+                pass
             
             #Gets the price of the car --> FIX THIS
             try:
                 price = self.driver.find_elements(By.CLASS_NAME, price_element)[2]
                 listing.price = price.get_attribute('innerText')
             except:
-                print('Could not retrieve price')
+                #print('Could not retrieve price')
+                pass
             
             
             #Gets the location of the car
@@ -247,7 +249,8 @@ class Scraper():
                 location = self.driver.find_element(By.CLASS_NAME, location_element)
                 listing.location = location.get_attribute('innerText')
             except:
-                print('Could not retrieve location')
+                #print('Could not retrieve location')
+                pass
             
             #Gets the car's miscellanious information
             misc_webelements = self.driver.find_elements(By.CLASS_NAME, misc_element)
@@ -274,31 +277,34 @@ class Scraper():
                 description = self.driver.find_element(By.CLASS_NAME, description_element)
                 listing.description = description.get_attribute('innerText')
             except:
-                print('Could not get description')
+                #print('Could not get description')
+                pass
             
 
             #Gets the car's first picture
             try:
                 listing.image = self.driver.find_elements(By.TAG_NAME, 'img')[0].get_attribute('src')
             except:
-                print('Picture could not be retrieved')
+                #print('Picture could not be retrieved')
+                pass
             
 
             #Adds the url to the listing information
             listing.url = link
 
-            print('Title: ', listing.title)
-            print('Price: ', listing.price)
-            print('Miles: ', listing.miles)
-            print('Location: ', listing.location)
-            print('Transmission: ', listing.transmission)
-            print('Colors', listing.colors)
-            print('Fueltype: ', listing.fueltype)
-            print('MPG: ', listing.mpg)
-            print('Description: ', listing.description)
-            print('Image link: ', listing.image)
-            print('Link: ', listing.url)
-            print('--------------------------')
+            
+            #print('Title: ', listing.title)
+            #print('Price: ', listing.price)
+            #print('Miles: ', listing.miles)
+            #print('Location: ', listing.location)
+            #print('Transmission: ', listing.transmission)
+            #print('Colors', listing.colors)
+            #print('Fueltype: ', listing.fueltype)
+            #print('MPG: ', listing.mpg)
+            #print('Description: ', listing.description)
+            #print('Image link: ', listing.image)
+            #print('Link: ', listing.url)
+            #print('--------------------------') 
 
             listings.append(listing)
         
@@ -352,7 +358,7 @@ class Scraper():
         self.input_location()
         self.input_search()
         links = self.get_car_links()
-        listings = self.get_car_info(links)
+        listings = self.get_car_info(links[:self.num_cars + 1])
         self.listings_to_csv(listings)
         self.quit()
 
@@ -371,6 +377,3 @@ class Listing():
         self.image = None
         self.description = None
         self.url = None
-
-x = Scraper('South Bend, Indiana', 20)
-x.run_all()

@@ -27,7 +27,7 @@ class ScrapeManager():
 
         self.scrapers = [Scraper(city, self.amount) for city in self.cities]
         
-        with ThreadPoolExecutor(max_workers=3) as executor:
+        with ThreadPoolExecutor(max_workers=2) as executor:
             futures = [executor.submit(self.run_scraper, scraper) for scraper in self.scrapers]
     
             # Wait for all threads to complete
@@ -38,11 +38,14 @@ class ScrapeManager():
     
     def run_scraper(self, scraper):
         '''Runs the scraper for a city'''
+        
+        print(f'Running scraper in {scraper.location}')
 
         try:
             scraper.run_all()
         except Exception as e:
-            print(f"Error in {scraper.location}: {e}")
+            #print(f"Error in {scraper.location}: {e}")
+            print(f'Error in {scraper.location}')
     
-x = ScrapeManager(50)
+x = ScrapeManager(20)
 x.run_scraping()
